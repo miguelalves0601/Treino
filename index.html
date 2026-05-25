@@ -501,6 +501,16 @@ async function saveSession() {
 
   updateHistBadge();
   showToast(savedRemote ? '✓ Sessão salva na nuvem!' : '✓ Sessão salva localmente!');
+
+  // Zerar treino após salvar
+  setTimeout(() => {
+    state = {};
+    saveState();
+    buildList('a');
+    buildList('b');
+    updateSummary();
+    switchTab('a');
+  }, 1500);
 }
 
 // ─── Local history ────────────────────────────────────────────────────────────
@@ -685,4 +695,5 @@ checkConnection();
 </script>
 </body>
 </html>
+
 
