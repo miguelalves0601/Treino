@@ -167,26 +167,11 @@
 </head>
 <body>
 
-<!-- CONFIG MODAL -->
-<div class="modal-overlay" id="configModal">
-  <div class="modal">
-    <h3>⚙ Configurar Backend</h3>
-    <p>Cole a URL do seu servidor (Render, Railway, etc.) para salvar o histórico na nuvem. Deixe em branco para usar apenas armazenamento local.</p>
-    <label>URL do Backend</label>
-    <input type="url" id="backendUrlInput" placeholder="https://seu-app.onrender.com" />
-    <div class="modal-btns">
-      <button class="modal-btn secondary" onclick="closeConfig()">Cancelar</button>
-      <button class="modal-btn primary" onclick="saveConfig()">Salvar</button>
-    </div>
-  </div>
-</div>
-
 <div class="main-header">
   <h1>PLANILHA DE TREINO <span>A</span> & <span>B</span> — REVISADA</h1>
   <div class="header-meta">
     <span class="date-display" id="dateLbl"></span>
     <button class="reset-btn" onclick="resetAll()">↺ Resetar</button>
-    <button class="reset-btn" onclick="openConfig()" style="border-color:#555">⚙ Backend</button>
   </div>
 </div>
 
@@ -276,21 +261,8 @@
 
 <script>
 // ─── Config ──────────────────────────────────────────────────────────────────
-function getApiUrl() { return localStorage.getItem('treino_api_url') || ''; }
-function setApiUrl(url) { localStorage.setItem('treino_api_url', url.trim()); }
-
-function openConfig() {
-  document.getElementById('backendUrlInput').value = getApiUrl();
-  document.getElementById('configModal').classList.add('open');
-}
-function closeConfig() { document.getElementById('configModal').classList.remove('open'); }
-function saveConfig() {
-  const url = document.getElementById('backendUrlInput').value.replace(/\/$/, '');
-  setApiUrl(url);
-  closeConfig();
-  checkConnection();
-  showToast('✓ URL salva!');
-}
+const API_URL = 'https://treino-oa0l.onrender.com';
+function getApiUrl() { return API_URL; }
 
 // ─── Connection check ────────────────────────────────────────────────────────
 async function checkConnection() {
@@ -709,10 +681,8 @@ updateSummary();
 updateHistBadge();
 checkConnection();
 
-// Show config modal on first visit if no API set
-if (!getApiUrl()) {
-  setTimeout(() => openConfig(), 800);
-}
+
 </script>
 </body>
 </html>
+
