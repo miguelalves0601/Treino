@@ -47,6 +47,12 @@ async function initDB() {
       );
 
       CREATE INDEX IF NOT EXISTS idx_ses_exercises_session ON session_exercises(session_id);
+
+      CREATE TABLE IF NOT EXISTS run_checks (
+        id         TEXT PRIMARY KEY,
+        done       BOOLEAN NOT NULL DEFAULT FALSE,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
     `);
     console.log('✅ DB ready');
   } finally {
@@ -163,7 +169,43 @@ app.delete('/sessions/:id', async (req, res) => {
   }
 });
 
+// ─── Run checks ───────────────────────────────────────────────────────────────
+
+// GET /run-checks — return all run check states
+app.get('/run-checks', async (req, res) => {
+  try {
+    const { rows } = await pool.query(`SELECT id, done FROM run_checks`);
+    // Return as { id: done, ... }
+    const result = {};
+    rows.forEach(r => { result[r.id] = r.done; });
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch run checks' });
+  }
+});
+
+// PUT /run-checks/:id — toggle a single run check
+app.put('/run-checks/:id', async (req, res) => {
+  const { id } = req.params;
+  const { done } = req.body;
+  if (typeof done !== 'boolean') return res.status(400).json({ error: 'done must be boolean' });
+  try {
+    await pool.query(
+      `INSERT INTO run_checks (id, done, updated_at)
+       VALUES ($1, $2, NOW())
+       ON CONFLICT (id) DO UPDATE SET done = $2, updated_at = NOW()`,
+      [id, done]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update run check' });
+  }
+});
+
 // ─── Start ────────────────────────────────────────────────────────────────────
 initDB()
   .then(() => app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`)))
   .catch(err => { console.error('DB init failed:', err); process.exit(1); });
+
