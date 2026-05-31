@@ -148,6 +148,30 @@
   .filter-btn.active{border-color:var(--gold);color:var(--gold)}
   .filter-btn:hover{border-color:#555;color:var(--text)}
 
+  /* CORRIDA */
+  --green:#00b84a; --green-dark:#007a30;
+  .tab-btn.run{background:var(--surface2);color:var(--text-muted);border-bottom:3px solid transparent}
+  .tab-btn.run.active{background:linear-gradient(135deg,#001a0a,#00120a);color:var(--green);border-bottom:3px solid var(--green)}
+  .run-header{padding:20px 0 14px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .run-header h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,6vw,2.4rem);letter-spacing:4px;line-height:1;color:#00b84a;text-shadow:0 0 30px rgba(0,184,74,.4)}
+  .run-header p{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;color:var(--text-muted);margin-top:4px;letter-spacing:1px}
+  .week-block{margin-bottom:20px}
+  .week-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;color:#00b84a;padding:10px 0 8px;border-bottom:1px solid #1a2e20;margin-bottom:8px}
+  .run-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .3s,background .3s;position:relative;display:flex;align-items:center}
+  .run-card.done{background:var(--done-bg);border-color:var(--done-border)}
+  .run-card.done::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--done-check)}
+  .run-day-badge{min-width:52px;height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a2e20;flex-shrink:0}
+  .run-card.done .run-day-badge{background:rgba(0,200,80,.15)}
+  .run-day-badge span:first-child{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#00b84a;letter-spacing:1px}
+  .run-day-badge span:last-child{font-family:'Barlow Condensed',sans-serif;font-size:.65rem;color:#555;text-transform:uppercase;letter-spacing:.5px}
+  .run-info{flex:1;padding:10px 12px}
+  .run-type{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);line-height:1.2}
+  .run-desc{font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:var(--text-muted);margin-top:3px;line-height:1.4}
+  .run-check-btn{width:50px;min-width:50px;height:64px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none;-webkit-tap-highlight-color:transparent;transition:background .2s}
+  .run-check-btn:hover{background:rgba(255,255,255,.03)}
+  .run-check-btn .check-circle{width:30px;height:30px;border-radius:50%;border:2px solid #333;display:flex;align-items:center;justify-content:center;transition:all .25s;color:transparent;font-size:15px}
+  .run-card.done .run-check-btn .check-circle{background:var(--done-check);border-color:var(--done-check);color:#fff}
+
   /* CONFIG MODAL */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;padding:16px}
   .modal-overlay.open{display:flex}
@@ -189,6 +213,9 @@
   <button class="tab-btn b" onclick="switchTab('b')">
     DIA B<br><span class="tab-progress" id="progLblB">0 / 13</span>
   </button>
+  <button class="tab-btn run" onclick="switchTab('run')">
+    CORRIDA<br><span class="tab-progress" id="progLblRun">0 / 12</span>
+  </button>
   <button class="tab-btn hist" onclick="switchTab('hist')">
     HISTÓRICO<br><span class="tab-progress" id="progLblHist">—</span>
   </button>
@@ -218,6 +245,15 @@
     </div>
   </div>
   <div id="listB"></div>
+</div>
+
+<!-- CORRIDA -->
+<div class="section" id="secRun">
+  <div class="run-header">
+    <h2>PLANO DE CORRIDA</h2>
+    <p>4 semanas · 3 treinos/semana</p>
+  </div>
+  <div id="runList"></div>
 </div>
 
 <!-- HISTÓRICO -->
@@ -328,6 +364,101 @@ const DATA = {
     ]
   }
 };
+
+// ─── Run data ─────────────────────────────────────────────────────────────────
+const RUN_DATA = [
+  { week:'Semana 1', sessions:[
+    { id:'r1_1', day:'Seg', type:'Leve + técnica',      desc:'5 km @ 6:00–6:20 + 4 strides' },
+    { id:'r1_2', day:'Qua', type:'Intervalado',          desc:'4x800m @ 5:30–5:35 (2min trote)' },
+    { id:'r1_3', day:'Sáb', type:'Longo progressivo',    desc:'7 km (2k 6:10 / 3k 5:50 / 2k 5:40)' },
+  ]},
+  { week:'Semana 2', sessions:[
+    { id:'r2_1', day:'Seg', type:'Leve + técnica',      desc:'5–6 km @ 6:00–6:15 + 5 strides' },
+    { id:'r2_2', day:'Qua', type:'Limiar contínuo',      desc:'2k leve + 18min @ 5:40–5:45 + 1k leve' },
+    { id:'r2_3', day:'Sáb', type:'Longo progressivo',    desc:'8 km (3k 6:00 / 3k 5:50 / 2k 5:35–5:40)' },
+  ]},
+  { week:'Semana 3', sessions:[
+    { id:'r3_1', day:'Seg', type:'Leve + técnica',      desc:'5 km @ 6:10 + 4 strides' },
+    { id:'r3_2', day:'Qua', type:'Intervalado forte',    desc:'5x800m @ 5:20–5:30 (2min trote)' },
+    { id:'r3_3', day:'Sáb', type:'Longo progressivo',    desc:'9 km (3k 6:00 / 3k 5:50 / 3k 5:30–5:35)' },
+  ]},
+  { week:'Semana 4', sessions:[
+    { id:'r4_1', day:'Seg', type:'Leve',                desc:'4–5 km @ 6:10 + 3 strides' },
+    { id:'r4_2', day:'Qua', type:'Ritmo de prova',       desc:'2k leve + 3k @ 5:30–5:35 + 1k leve' },
+    { id:'r4_3', day:'Prova', type:'Dia 28',             desc:'Estratégia: começar 5:40 → fechar forte' },
+  ]},
+];
+
+function buildRunList() {
+  const container = document.getElementById('runList');
+  container.innerHTML = '';
+  let total = 0, done = 0;
+  RUN_DATA.forEach(week => {
+    const block = document.createElement('div');
+    block.className = 'week-block';
+    const title = document.createElement('div');
+    title.className = 'week-title';
+    title.textContent = week.week.toUpperCase();
+    block.appendChild(title);
+    week.sessions.forEach(s => {
+      total++;
+      const isDone = !!(state[s.id] && state[s.id].done);
+      if (isDone) done++;
+      const card = document.createElement('div');
+      card.className = 'run-card' + (isDone ? ' done' : '');
+      card.id = 'rcard_' + s.id;
+      card.innerHTML = `
+        <div class="run-day-badge">
+          <span>${s.day}</span>
+        </div>
+        <div class="run-info">
+          <div class="run-type">${s.type}</div>
+          <div class="run-desc">${s.desc}</div>
+        </div>
+        <button class="run-check-btn" onclick="toggleRunDone('${s.id}')" aria-label="Marcar como feito">
+          <div class="check-circle">${isDone ? '✓' : ''}</div>
+        </button>`;
+      block.appendChild(card);
+    });
+    container.appendChild(block);
+  });
+  document.getElementById('progLblRun').textContent = done + ' / ' + total;
+}
+
+async function loadRunChecksFromBackend() {
+  const apiUrl = getApiUrl();
+  if (!apiUrl) return;
+  try {
+    const res = await fetch(`${apiUrl}/run-checks`, { signal: AbortSignal.timeout(5000) });
+    if (res.ok) {
+      const checks = await res.json();
+      Object.entries(checks).forEach(([id, isDone]) => {
+        if (!state[id]) state[id] = {};
+        state[id].done = isDone;
+      });
+      saveState();
+      buildRunList();
+    }
+  } catch(e) { /* usa estado local */ }
+}
+
+async function toggleRunDone(id) {
+  if (!state[id]) state[id] = {};
+  state[id].done = !state[id].done;
+  saveState();
+  buildRunList();
+  const apiUrl = getApiUrl();
+  if (apiUrl) {
+    try {
+      await fetch(`${apiUrl}/run-checks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ done: state[id].done }),
+        signal: AbortSignal.timeout(5000),
+      });
+    } catch(e) { /* falha silenciosa, estado local já guardado */ }
+  }
+}
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let state = loadState();
@@ -660,9 +791,17 @@ async function updateHistBadge() {
 function switchTab(day) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelector('.tab-btn.' + day).classList.add('active');
-  document.getElementById('sec' + (day === 'hist' ? 'Hist' : day.toUpperCase())).classList.add('active');
-  if (day === 'hist') renderHistory();
+  if (day === 'hist') {
+    document.querySelector('.tab-btn.hist').classList.add('active');
+    document.getElementById('secHist').classList.add('active');
+    renderHistory();
+  } else if (day === 'run') {
+    document.querySelector('.tab-btn.run').classList.add('active');
+    document.getElementById('secRun').classList.add('active');
+  } else {
+    document.querySelector('.tab-btn.' + day).classList.add('active');
+    document.getElementById('sec' + day.toUpperCase()).classList.add('active');
+  }
 }
 
 function resetAll() {
@@ -687,6 +826,8 @@ document.getElementById('dateLbl').textContent =
 
 buildList('a');
 buildList('b');
+buildRunList();
+loadRunChecksFromBackend();
 updateSummary();
 updateHistBadge();
 checkConnection();
